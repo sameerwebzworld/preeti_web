@@ -1,4 +1,5 @@
 "use client";
+import { useToast } from "@/app/context/ToastContext";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import { login } from "@/services/authService";
 import Link from "next/link";
@@ -10,6 +11,7 @@ interface SigninForm {
 }
 
 const Signin = () => {
+  const toast = useToast();
   const [form, setForm] = useState<SigninForm>({
     email: "",
     password: "",
@@ -31,6 +33,12 @@ const Signin = () => {
     try {
       console.log(form);
       await login(form.email, form.password);
+      const data = await login(form.email,form.password);
+      if (data) {
+        toast.success("Login Successful","Welcome back!",3000);
+        localStorage.setItem("token",data.token);
+        localStorage.setItem("user",JSON.stringify(data.user));
+      }
     } catch (err) {
       console.log(err);
     } finally {

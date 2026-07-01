@@ -1,43 +1,45 @@
+const CDN = "https://cdn.shopify.com/s/files/1/0651/2023/9673/files";
+
 const data = [
   {
-    title: "Televisions",
+    title: "Floor Cleaners",
     id: 1,
-    img: "/images/categories/categories-01.png",
+    img: `${CDN}/Milky5ltr.jpg?v=1733230860`,
   },
   {
-    title: "Laptop & PC",
+    title: "Washing Powders",
     id: 2,
-    img: "/images/categories/categories-02.png",
+    img: `${CDN}/Premium1kg_5kg.png?v=1733376989`,
   },
   {
-    title: "Mobile & Tablets",
+    title: "Laundry Care",
     id: 3,
-    img: "/images/categories/categories-03.png",
+    img: `${CDN}/Colorfix500ml.jpg?v=1733382388`,
   },
   {
-    title: "Games & Videos",
+    title: "Handwash",
     id: 4,
-    img: "/images/categories/categories-04.png",
+    img: `${CDN}/Rose_hanwash_5_ltr.jpg?v=1733221461`,
   },
   {
-    title: "Home Appliances",
+    title: "Beauty Soaps",
     id: 5,
-    img: "/images/categories/categories-05.png",
+    img: `${CDN}/Naturalbathsoap.jpg?v=1733222500`,
   },
   {
-    title: "Health & Sports",
+    title: "Brooms & Mops",
     id: 6,
-    img: "/images/categories/categories-06.png",
+    img: `${CDN}/broom1.jpg?v=1733231594`,
   },
   {
-    title: "Watches",
+    title: "Kitchen Care",
     id: 7,
-    img: "/images/categories/categories-07.png",
+    img: `${CDN}/IMG_6222.jpg?v=1733383065`,
   },
   {
-    title: "Televisions",
+    title: "Combo Kits",
     id: 8,
-    img: "/images/categories/categories-04.png",
+    img: `${CDN}/6.jpg?v=1734007975`,
   },
 ];
 

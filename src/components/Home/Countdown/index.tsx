@@ -8,7 +8,7 @@ const CounDown = () => {
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
 
-  const deadline = "December, 31, 2024";
+  const deadline = "December, 31, 2026";
 
   const getTime = () => {
     const time = Date.parse(deadline) - Date.now();
@@ -36,10 +36,13 @@ const CounDown = () => {
             </span>
 
             <h2 className="font-bold text-dark text-xl lg:text-heading-4 xl:text-heading-3 mb-3">
-              Enhance Your Music Experience
+              A Sparkling-Clean Home Awaits
             </h2>
 
-            <p>The Havit H206d is a wired PC headphone.</p>
+            <p>
+              Grab the Preeti Combo Box – 5 cleaning essentials in 1 at up to 43%
+              off. Limited-time festive deal.
+            </p>
 
             {/* <!-- Countdown timer --> */}
             <div

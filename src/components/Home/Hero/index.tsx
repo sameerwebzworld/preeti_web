@@ -29,7 +29,7 @@ const Hero = () => {
                 <div className="flex items-center gap-14">
                   <div>
                     <h2 className="max-w-[153px] font-semibold text-dark text-xl mb-20">
-                      <a href="#"> iPhone 14 Plus & 14 Pro Max </a>
+                      <a href="#"> Preeti Combo Box – 5 in 1 </a>
                     </h2>
 
                     <div>
@@ -38,10 +38,10 @@ const Hero = () => {
                       </p>
                       <span className="flex items-center gap-3">
                         <span className="font-medium text-heading-5 text-red">
-                          $699
+                          ₹300
                         </span>
                         <span className="font-medium text-2xl text-dark-4 line-through">
-                          $999
+                          ₹530
                         </span>
                       </span>
                     </div>
@@ -49,10 +49,11 @@ const Hero = () => {
 
                   <div>
                     <Image
-                      src="/images/hero/hero-02.png"
-                      alt="mobile image"
+                      src="https://cdn.shopify.com/s/files/1/0651/2023/9673/files/6.jpg?v=1734007975"
+                      alt="Preeti combo box"
                       width={123}
                       height={161}
+                      className="object-contain"
                     />
                   </div>
                 </div>
@@ -61,7 +62,7 @@ const Hero = () => {
                 <div className="flex items-center gap-14">
                   <div>
                     <h2 className="max-w-[153px] font-semibold text-dark text-xl mb-20">
-                      <a href="#"> Wireless Headphone </a>
+                      <a href="#"> Preeti Fairy Floor Cleaner </a>
                     </h2>
 
                     <div>
@@ -70,10 +71,10 @@ const Hero = () => {
                       </p>
                       <span className="flex items-center gap-3">
                         <span className="font-medium text-heading-5 text-red">
-                          $699
+                          ₹120
                         </span>
                         <span className="font-medium text-2xl text-dark-4 line-through">
-                          $999
+                          ₹155
                         </span>
                       </span>
                     </div>
@@ -81,10 +82,11 @@ const Hero = () => {
 
                   <div>
                     <Image
-                      src="/images/hero/hero-01.png"
-                      alt="mobile image"
+                      src="https://cdn.shopify.com/s/files/1/0651/2023/9673/files/Preeti_Fairy.png?v=1766406668"
+                      alt="Preeti Fairy floor cleaner"
                       width={123}
                       height={161}
+                      className="object-contain"
                     />
                   </div>
                 </div>

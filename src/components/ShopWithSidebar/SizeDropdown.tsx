@@ -44,49 +44,49 @@ const SizeDropdown = () => {
         }`}
       >
         <label
-          htmlFor="sizeM"
+          htmlFor="size500ml"
           className="cursor-pointer select-none flex items-center rounded-md bg-blue text-white hover:bg-blue hover:text-white"
         >
           <div className="relative">
-            <input type="radio" name="size" id="sizeM" className="sr-only" />
+            <input type="radio" name="size" id="size500ml" className="sr-only" />
             <div className="text-custom-sm py-[5px] px-3.5 rounded-[5px]">
-              M
+              500 ml
             </div>
           </div>
         </label>
 
         <label
-          htmlFor="sizeL"
+          htmlFor="size1ltr"
           className="cursor-pointer select-none flex items-center rounded-md hover:bg-blue hover:text-white"
         >
           <div className="relative">
-            <input type="radio" name="size" id="sizeL" className="sr-only" />
+            <input type="radio" name="size" id="size1ltr" className="sr-only" />
             <div className="text-custom-sm py-[5px] px-3.5 rounded-[5px]">
-              L
+              1 Ltr
             </div>
           </div>
         </label>
 
         <label
-          htmlFor="sizeXL"
+          htmlFor="size2ltr"
           className="cursor-pointer select-none flex items-center rounded-md hover:bg-blue hover:text-white"
         >
           <div className="relative">
-            <input type="radio" name="size" id="sizeXL" className="sr-only" />
+            <input type="radio" name="size" id="size2ltr" className="sr-only" />
             <div className="text-custom-sm py-[5px] px-3.5 rounded-[5px]">
-              XL
+              2 Ltr
             </div>
           </div>
         </label>
 
         <label
-          htmlFor="sizeXXL"
+          htmlFor="size5ltr"
           className="cursor-pointer select-none flex items-center rounded-md hover:bg-blue hover:text-white"
         >
           <div className="relative">
-            <input type="radio" name="size" id="sizeXXL" className="sr-only" />
+            <input type="radio" name="size" id="size5ltr" className="sr-only" />
             <div className="text-custom-sm py-[5px] px-3.5 rounded-[5px]">
-              XXL
+              5 Ltr
             </div>
           </div>
         </label>

@@ -32,49 +32,49 @@ const ShopWithSidebar = () => {
 
   const categories = [
     {
-      name: "Desktop",
-      products: 10,
+      name: "House Care",
+      products: 8,
       isRefined: true,
     },
     {
-      name: "Laptop",
-      products: 12,
+      name: "Laundry Care",
+      products: 7,
       isRefined: false,
     },
     {
-      name: "Monitor",
-      products: 30,
+      name: "Personal Care",
+      products: 5,
       isRefined: false,
     },
     {
-      name: "UPS",
-      products: 23,
+      name: "Kitchen Care",
+      products: 2,
       isRefined: false,
     },
     {
-      name: "Phone",
-      products: 10,
+      name: "Brooms & Mops",
+      products: 3,
       isRefined: false,
     },
     {
-      name: "Watch",
-      products: 13,
+      name: "Combo Kits",
+      products: 1,
       isRefined: false,
     },
   ];
 
   const genders = [
     {
-      name: "Men",
-      products: 10,
+      name: "Floor Cleaners",
+      products: 4,
     },
     {
-      name: "Women",
-      products: 23,
+      name: "Washing Powders",
+      products: 3,
     },
     {
-      name: "Unisex",
-      products: 8,
+      name: "Soaps & Handwash",
+      products: 6,
     },
   ];
 

@@ -71,30 +71,30 @@ const Checkout = () => {
                     {/* <!-- product item --> */}
                     <div className="flex items-center justify-between py-5 border-b border-gray-3">
                       <div>
-                        <p className="text-dark">iPhone 14 Plus , 6/128GB</p>
+                        <p className="text-dark">Combo Box - Promo Kit 5 in 1</p>
                       </div>
                       <div>
-                        <p className="text-dark text-right">$899.00</p>
-                      </div>
-                    </div>
-
-                    {/* <!-- product item --> */}
-                    <div className="flex items-center justify-between py-5 border-b border-gray-3">
-                      <div>
-                        <p className="text-dark">Asus RT Dual Band Router</p>
-                      </div>
-                      <div>
-                        <p className="text-dark text-right">$129.00</p>
+                        <p className="text-dark text-right">₹300.00</p>
                       </div>
                     </div>
 
                     {/* <!-- product item --> */}
                     <div className="flex items-center justify-between py-5 border-b border-gray-3">
                       <div>
-                        <p className="text-dark">Havit HV-G69 USB Gamepad</p>
+                        <p className="text-dark">Preeti Premium Washing Powder</p>
                       </div>
                       <div>
-                        <p className="text-dark text-right">$29.00</p>
+                        <p className="text-dark text-right">₹140.00</p>
+                      </div>
+                    </div>
+
+                    {/* <!-- product item --> */}
+                    <div className="flex items-center justify-between py-5 border-b border-gray-3">
+                      <div>
+                        <p className="text-dark">Lemon Handwash</p>
+                      </div>
+                      <div>
+                        <p className="text-dark text-right">₹110.00</p>
                       </div>
                     </div>
 
@@ -104,7 +104,7 @@ const Checkout = () => {
                         <p className="text-dark">Shipping Fee</p>
                       </div>
                       <div>
-                        <p className="text-dark text-right">$15.00</p>
+                        <p className="text-dark text-right">₹49.00</p>
                       </div>
                     </div>
 
@@ -115,7 +115,7 @@ const Checkout = () => {
                       </div>
                       <div>
                         <p className="font-medium text-lg text-dark text-right">
-                          $1072.00
+                          ₹599.00
                         </p>
                       </div>
                     </div>

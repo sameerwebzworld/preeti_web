@@ -2,46 +2,51 @@ import { Testimonial } from "@/types/testimonial";
 
 const testimonialsData: Testimonial[] = [
   {
-    review: `Lorem ipsum dolor sit amet, adipiscing elit. Donec
-    malesuada justo vitaeaugue suscipit beautiful vehicula`,
-    authorName: "Davis Dorwart",
+    review: `The Preeti Combo Box is incredible value — five cleaning
+    essentials that last my family a whole month. The floor cleaner
+    smells wonderful and my home stays fresh all day.`,
+    authorName: "Anjali Deshmukh",
     authorImg: "/images/users/user-01.jpg",
-    authorRole: "Serial Entrepreneur",
+    authorRole: "Homemaker, Mumbai",
   },
   {
-    review: `Lorem ipsum dolor sit amet, adipiscing elit. Donec
-    malesuada justo vitaeaugue suscipit beautiful vehicula`,
-    authorName: "Wilson Dias",
+    review: `I switched to Preeti Micromatic for my front-load machine and
+    the clothes come out spotless with far less powder. Trusted quality
+    at an honest price.`,
+    authorName: "Rahul Mehta",
     authorImg: "/images/users/user-02.jpg",
-    authorRole: "Backend Developer",
+    authorRole: "Verified Buyer",
   },
   {
-    review: `Lorem ipsum dolor sit amet, adipiscing elit. Donec
-    malesuada justo vitaeaugue suscipit beautiful vehicula`,
-    authorName: "Miracle Exterm",
+    review: `The Rose Handwash is gentle on my hands and the fragrance is
+    lovely. You can tell these are made with care — a brand our family
+    has relied on for years.`,
+    authorName: "Sneha Iyer",
     authorImg: "/images/users/user-03.jpg",
-    authorRole: "Serial Entrepreneur",
+    authorRole: "Verified Buyer",
   },
   {
-    review: `Lorem ipsum dolor sit amet, adipiscing elit. Donec
-    malesuada justo vitaeaugue suscipit beautiful vehicula`,
-    authorName: "Thomas Frank",
+    review: `Preeti Fairy floor cleaner keeps the insects away and leaves
+    a pleasant pine fragrance. A little goes a long way. Highly
+    recommended for large homes.`,
+    authorName: "Vikram Patil",
     authorImg: "/images/users/user-01.jpg",
-    authorRole: "Entrepreneur",
+    authorRole: "Facility Manager",
   },
   {
-    review: `Lorem ipsum dolor sit amet, adipiscing elit. Donec
-    malesuada justo vitaeaugue suscipit beautiful vehicula`,
-    authorName: "Dave Smith",
+    review: `Fast delivery and genuine products every time. The beauty
+    soaps with cocoa butter and aloe vera are my absolute favourites.`,
+    authorName: "Priya Nair",
     authorImg: "/images/users/user-02.jpg",
-    authorRole: "Serial Entrepreneur",
+    authorRole: "Verified Buyer",
   },
   {
-    review: `Lorem ipsum dolor sit amet, adipiscing elit. Donec
-    malesuada justo vitaeaugue suscipit beautiful vehicula`,
-    authorName: "Davis Dorwart",
+    review: `Been buying Preeti products since 1974 — the quality has
+    never dropped. The new website makes reordering my monthly kit so
+    easy.`,
+    authorName: "Suresh Kulkarni",
     authorImg: "/images/users/user-03.jpg",
-    authorRole: "Serial Entrepreneur",
+    authorRole: "Loyal Customer",
   },
 ];
 
