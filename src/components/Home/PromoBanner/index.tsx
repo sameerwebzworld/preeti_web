@@ -3,10 +3,10 @@ import Image from "next/image";
 
 const PromoBanner = () => {
   return (
-    <section className="overflow-hidden py-20">
+    <section className="overflow-hidden py-10">
       <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
         {/* <!-- promo banner big --> */}
-        <div className="relative z-1 overflow-hidden rounded-lg bg-[#F5F5F7] py-12.5 lg:py-17.5 xl:py-22.5 px-4 sm:px-7.5 lg:px-14 xl:px-19 mb-7.5">
+        <div className="relative z-1 overflow-hidden rounded-lg bg-[#F5F5F7] py-9 lg:py-11 xl:py-14 px-4 sm:px-7.5 lg:px-14 xl:px-19 mb-7.5">
           <div className="max-w-[550px] w-full">
             <span className="block font-medium text-xl text-dark mb-3">
               Preeti Combo Box – 5 in 1
@@ -41,7 +41,7 @@ const PromoBanner = () => {
 
         <div className="grid gap-7.5 grid-cols-1 lg:grid-cols-2">
           {/* <!-- promo banner small --> */}
-          <div className="relative z-1 overflow-hidden rounded-lg bg-[#DBF4F3] py-10 xl:py-16 px-4 sm:px-7.5 xl:px-10">
+          <div className="relative z-1 overflow-hidden rounded-lg bg-[#DBF4F3] py-8 xl:py-11 px-4 sm:px-7.5 xl:px-10">
             <Image
               src="https://cdn.shopify.com/s/files/1/0651/2023/9673/files/Rose_hanwash_5_ltr.jpg?v=1733221461"
               alt="Rose handwash"
@@ -73,7 +73,7 @@ const PromoBanner = () => {
           </div>
 
           {/* <!-- promo banner small --> */}
-          <div className="relative z-1 overflow-hidden rounded-lg bg-[#FFECE1] py-10 xl:py-16 px-4 sm:px-7.5 xl:px-10">
+          <div className="relative z-1 overflow-hidden rounded-lg bg-[#FFECE1] py-8 xl:py-11 px-4 sm:px-7.5 xl:px-10">
             <Image
               src="https://cdn.shopify.com/s/files/1/0651/2023/9673/files/Naturalbathsoap.jpg?v=1733222500"
               alt="Preeti beauty soap"

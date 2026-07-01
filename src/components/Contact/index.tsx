@@ -61,7 +61,7 @@ const Contact = () => {
                         fill="#3C50E0"
                       />
                     </svg>
-                    Phone: 1234 567890
+                    Phone: 022 2305 4000
                   </p>
 
                   <p className="flex gap-4">
@@ -80,7 +80,9 @@ const Contact = () => {
                         fill="#3C50E0"
                       />
                     </svg>
-                    Address: 7398 Smoke Ranch RoadLas Vegas, Nevada 89128
+                    Address: Unit No. 13 &amp; 14, Tatia-Jogani Industrial
+                    Estate, J.R. Boricha Road, Lower Parel (East), Mumbai,
+                    Maharashtra 400011
                   </p>
                 </div>
               </div>

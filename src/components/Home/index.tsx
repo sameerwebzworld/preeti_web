@@ -4,9 +4,6 @@ import Categories from "./Categories";
 import NewArrival from "./NewArrivals";
 import PromoBanner from "./PromoBanner";
 import BestSeller from "./BestSeller";
-import CounDown from "./Countdown";
-import Testimonials from "./Testimonials";
-import Newsletter from "../Common/Newsletter";
 
 const Home = () => {
   return (
@@ -16,9 +13,6 @@ const Home = () => {
       <NewArrival />
       <PromoBanner />
       <BestSeller />
-      <CounDown />
-      <Testimonials />
-      <Newsletter />
     </main>
   );
 };

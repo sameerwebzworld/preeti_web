@@ -32,11 +32,12 @@ const Footer = () => {
                     />
                   </svg>
                 </span>
-                685 Market Street,Las Vegas, LA 95820,United States.
+                Unit No. 13 &amp; 14, Tatia-Jogani Industrial Estate, J.R.
+                Boricha Road, Lower Parel (East), Mumbai, Maharashtra 400011
               </li>
 
               <li>
-                <a href="#" className="flex items-center gap-4.5">
+                <a href="tel:02223054000" className="flex items-center gap-4.5">
                   <svg
                     width="24"
                     height="24"
@@ -61,7 +62,7 @@ const Footer = () => {
                       fill="#3C50E0"
                     />
                   </svg>
-                  (+099) 532-786-9843
+                  022 2305 4000
                 </a>
               </li>
 
@@ -268,10 +269,6 @@ const Footer = () => {
             <h2 className="mb-7.5 text-custom-1 font-medium text-dark lg:text-right">
               Download App
             </h2>
-
-            <p className="lg:text-right text-custom-sm mb-4">
-              Save ₹30 With App & New User only
-            </p>
 
             <ul className="flex flex-col lg:items-end gap-3">
               <li>
