@@ -168,7 +168,7 @@ const ToastCard = ({
         minWidth: "320px",
         maxWidth: "400px",
         width: "100%",
-        transform: visible && !leaving ? "translateX(0) scale(1)" : "translateX(110%) scale(0.96)",
+        transform: visible && !leaving ? "translateY(0) scale(1)" : "translateY(110%) scale(0.96)",
         opacity: visible && !leaving ? 1 : 0,
         transition: "transform 0.32s cubic-bezier(0.34,1.56,0.64,1), opacity 0.28s ease",
         position: "relative",
@@ -328,15 +328,15 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
       {/* ── Spin keyframe ── */}
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
 
-      {/* ── Toast container — top-right ── */}
+      {/* ── Toast container — bottom-right ── */}
       <div
         style={{
           position: "fixed",
-          top: "20px",
+          bottom: "20px",
           right: "20px",
           zIndex: 99999,
           display: "flex",
-          flexDirection: "column",
+          flexDirection: "column-reverse",
           gap: "10px",
           alignItems: "flex-end",
           pointerEvents: "none",

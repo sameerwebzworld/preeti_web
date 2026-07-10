@@ -1,168 +1,510 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Product } from "@/types/product";
 import { useModalContext } from "@/app/context/QuickViewModalContext";
 import { updateQuickView } from "@/redux/features/quickView-slice";
-import { addItemToCart } from "@/redux/features/cart-slice";
-import { addItemToWishlist } from "@/redux/features/wishlist-slice";
+import { addItemToCart, removeItemFromCart, updateCartItemQuantity } from "@/redux/features/cart-slice";
+import { addItemToWishlist, removeItemFromWishlist } from "@/redux/features/wishlist-slice";
 import { updateproductDetails } from "@/redux/features/product-details";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
-import Link from "next/link";
+import { AppDispatch, useAppSelector } from "@/redux/store";
+import { useToast } from "@/app/context/ToastContext";
 
-const ProductItem = ({ item }: { item: Product }) => {
+// Options helper based on product title/type
+const getProductOptions = (title: string) => {
+  const lowercaseTitle = title.toLowerCase();
+  if (lowercaseTitle.includes("washing powder") || lowercaseTitle.includes("powder") || lowercaseTitle.includes("detergent")) {
+    return ["1kg", "2kg", "5kg"];
+  }
+  if (
+    lowercaseTitle.includes("cleaner") ||
+    lowercaseTitle.includes("liquid") ||
+    lowercaseTitle.includes("handwash") ||
+    lowercaseTitle.includes("wash") ||
+    lowercaseTitle.includes("cuff") ||
+    lowercaseTitle.includes("collar") ||
+    lowercaseTitle.includes("bleach") ||
+    lowercaseTitle.includes("topclean") ||
+    lowercaseTitle.includes("color fix") ||
+    lowercaseTitle.includes("colorfix")
+  ) {
+    return ["500ml", "1L", "5L"];
+  }
+  if (lowercaseTitle.includes("combo") || lowercaseTitle.includes("value pack") || lowercaseTitle.includes("kit")) {
+    return ["1 Pack", "2 Packs"];
+  }
+  if (lowercaseTitle.includes("soap") || lowercaseTitle.includes("pack of")) {
+    return ["1 Pack", "3 Packs"];
+  }
+  if (lowercaseTitle.includes("bag") || lowercaseTitle.includes("towel") || lowercaseTitle.includes("broom")) {
+    return ["1 Unit", "3 Units"];
+  }
+  return ["1 Unit"];
+};
+
+// Pricing scaling helper based on size choice
+const getAdjustedPrices = (basePrice: number, baseDiscountedPrice: number, option: string) => {
+  switch (option) {
+    case "1kg":
+    case "1 Pack":
+    case "1 Unit":
+      return { price: basePrice, discountedPrice: baseDiscountedPrice };
+    case "2kg":
+      return { price: Math.round(basePrice * 1.8), discountedPrice: Math.round(baseDiscountedPrice * 1.8) };
+    case "5kg":
+      return { price: Math.round(basePrice * 4.2), discountedPrice: Math.round(baseDiscountedPrice * 4.2) };
+    case "500ml":
+      return { price: Math.round(basePrice * 0.5), discountedPrice: Math.round(baseDiscountedPrice * 0.5) };
+    case "1L":
+      return { price: basePrice, discountedPrice: baseDiscountedPrice };
+    case "5L":
+      return { price: Math.round(basePrice * 4.5), discountedPrice: Math.round(baseDiscountedPrice * 4.5) };
+    case "2 Packs":
+      return { price: Math.round(basePrice * 1.8), discountedPrice: Math.round(baseDiscountedPrice * 1.8) };
+    case "3 Packs":
+    case "3 Units":
+      return { price: Math.round(basePrice * 2.5), discountedPrice: Math.round(baseDiscountedPrice * 2.5) };
+    default:
+      return { price: basePrice, discountedPrice: baseDiscountedPrice };
+  }
+};
+
+interface ProductItemProps {
+  item: Product;
+  viewMode?: "grid" | "list";
+}
+
+const ProductItem = ({ item, viewMode = "grid" }: ProductItemProps) => {
   const { openModal } = useModalContext();
-
   const dispatch = useDispatch<AppDispatch>();
+  const toast = useToast();
 
-  // update the QuickView state
-  const handleQuickViewUpdate = () => {
-    dispatch(updateQuickView({ ...item }));
+  const options = getProductOptions(item.title);
+  const [selectedOption, setSelectedOption] = useState<string>(options[0]);
+
+  // Adjust preview image and pricing based on selection
+  const selectedOptionIndex = options.indexOf(selectedOption);
+  const activeImage = item?.imgs?.previews[selectedOptionIndex] || item?.imgs?.previews[0] || "/images/placeholder.jpg";
+  const { price, discountedPrice } = getAdjustedPrices(item.price, item.discountedPrice, selectedOption);
+
+  // Generate unique ID per variant to allow separate line items in the cart
+  const variantId = item.id * 100 + selectedOptionIndex;
+
+  // Retrieve cart quantity and wishlist status for the current variant
+  const cartItems = useAppSelector((state) => state.cartReducer.items);
+  const cartItem = cartItems.find((ci) => ci.id === variantId);
+  const quantityInCart = cartItem ? cartItem.quantity : 0;
+
+  const wishlistItems = useAppSelector((state) => state.wishlistReducer.items);
+  const isWishlisted = wishlistItems.some((wi) => wi.id === variantId);
+
+  // Dynamic dispatch payloads
+  const dynamicItem = {
+    ...item,
+    id: variantId,
+    price,
+    discountedPrice,
+    title: `${item.title} (${selectedOption})`,
   };
 
-  // add to cart
+  const handleQuickViewUpdate = () => {
+    dispatch(updateQuickView({ ...dynamicItem }));
+  };
+
   const handleAddToCart = () => {
     dispatch(
       addItemToCart({
-        ...item,
+        ...dynamicItem,
         quantity: 1,
+      })
+    );
+    toast.success("Added to Cart", `Added ${item.title} (${selectedOption}) to your cart.`);
+  };
+
+  const handleIncreaseQuantity = () => {
+    dispatch(
+      updateCartItemQuantity({
+        id: variantId,
+        quantity: quantityInCart + 1,
       })
     );
   };
 
-  const handleItemToWishList = () => {
-    dispatch(
-      addItemToWishlist({
-        ...item,
-        status: "available",
-        quantity: 1,
-      })
-    );
+  const handleDecreaseQuantity = () => {
+    if (quantityInCart > 1) {
+      dispatch(
+        updateCartItemQuantity({
+          id: variantId,
+          quantity: quantityInCart - 1,
+        })
+      );
+    } else {
+      dispatch(removeItemFromCart(variantId));
+      toast.info("Removed from Cart", `${item.title} (${selectedOption}) was removed.`);
+    }
+  };
+
+  const handleAddToWishlist = () => {
+    if (isWishlisted) {
+      dispatch(removeItemFromWishlist(variantId));
+      toast.info("Removed from Watchlist", `Removed ${item.title} (${selectedOption}) from your watchlist.`);
+    } else {
+      dispatch(
+        addItemToWishlist({
+          ...dynamicItem,
+          status: "available",
+          quantity: 1,
+        })
+      );
+      toast.success("Added to Watchlist", `Added ${item.title} (${selectedOption}) to your watchlist.`);
+    }
   };
 
   const handleProductDetails = () => {
-    dispatch(updateproductDetails({ ...item }));
+    dispatch(updateproductDetails({ ...dynamicItem }));
   };
 
+  if (viewMode === "list") {
+    return (
+      <div className="group flex bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-gray-200/90 transition-all duration-300 relative w-full h-48 sm:h-52">
+        {/* Left Block: Image Container */}
+        <div className="relative w-36 h-36 sm:w-44 sm:h-44 bg-[#F8F9FA] rounded-xl flex items-center justify-center overflow-hidden p-2.5 flex-shrink-0 mr-4 sm:mr-6">
+          <Image
+            src={activeImage}
+            alt={item.title}
+            width={130}
+            height={130}
+            className="object-contain w-full h-full group-hover:scale-[1.03] transition-transform duration-300"
+          />
+
+          {/* Floating Actions on Top-Right of Image */}
+          <div className="absolute top-2 right-2 flex flex-col gap-1.5 z-10">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddToWishlist();
+              }}
+              aria-label="Toggle Watchlist"
+              className={`w-7.5 h-7.5 rounded-full flex items-center justify-center shadow-md border transition-all ${
+                isWishlisted
+                  ? "bg-blue/10 border-blue/20 text-blue"
+                  : "bg-white border-gray-100 text-dark-3 hover:text-blue hover:bg-gray-2"
+              }`}
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill={isWishlisted ? "currentColor" : "none"}
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleQuickViewUpdate();
+                openModal();
+              }}
+              aria-label="Quick View"
+              className="w-7.5 h-7.5 rounded-full bg-white border border-gray-100 flex items-center justify-center shadow-md text-dark-3 hover:text-blue hover:bg-gray-2 transition-all"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Right Block: Content Details */}
+        <div className="flex-1 flex flex-col justify-between py-1">
+          <div>
+            {/* Title */}
+            <h3 className="font-semibold text-dark text-sm sm:text-base leading-snug hover:text-blue transition-colors h-11 flex items-center">
+              <Link href="/shop-details" onClick={handleProductDetails} className="line-clamp-2">
+                {item.title}
+              </Link>
+            </h3>
+
+            {/* Ratings */}
+            <div className="flex items-center gap-1.5 mb-2 h-5">
+              <div className="flex items-center gap-0.5">
+                <Image src="/images/icons/icon-star.svg" alt="star" width={13} height={13} />
+                <Image src="/images/icons/icon-star.svg" alt="star" width={13} height={13} />
+                <Image src="/images/icons/icon-star.svg" alt="star" width={13} height={13} />
+                <Image src="/images/icons/icon-star.svg" alt="star" width={13} height={13} />
+                <Image src="/images/icons/icon-star.svg" alt="star" width={13} height={13} />
+              </div>
+              <span className="text-2xs sm:text-xs text-dark-4">({item.reviews})</span>
+            </div>
+
+            {/* Variant Price Chips */}
+            {options.length > 1 && (
+              <div className="flex flex-wrap gap-1.5 my-2">
+                {options.map((opt) => {
+                  const optPrices = getAdjustedPrices(item.price, item.discountedPrice, opt);
+                  const isSelected = selectedOption === opt;
+                  return (
+                    <button
+                      key={opt}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedOption(opt);
+                      }}
+                      className={`flex flex-col items-center justify-center px-2 py-0.5 rounded-lg border text-[10px] font-semibold transition-all duration-150 ${
+                        isSelected
+                          ? "bg-blue text-white border-blue shadow-2xs"
+                          : "bg-white text-dark-2 border-gray-3 hover:border-blue hover:text-blue"
+                      }`}
+                      style={{ minWidth: "56px" }}
+                    >
+                      <span>{opt}</span>
+                      <span className={`text-[9px] ${isSelected ? "text-blue-light-4" : "text-dark-4"}`}>
+                        ₹{optPrices.discountedPrice}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Pricing & ADD/Stepper Row */}
+          <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+            <div className="flex items-baseline gap-2">
+              <span className="text-base sm:text-lg font-bold text-dark">₹{discountedPrice}</span>
+              <span className="text-xs text-dark-4 line-through">₹{price}</span>
+            </div>
+
+            {/* Stepper / ADD Button (Fixed size) */}
+            <div className="relative w-[84px] h-[34px] flex-shrink-0 flex items-center justify-center">
+              {quantityInCart === 0 ? (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddToCart();
+                  }}
+                  className="w-full h-full border border-blue text-blue hover:bg-blue hover:text-white font-bold rounded-lg text-xs tracking-wider uppercase transition-all duration-200 bg-white shadow-2xs"
+                >
+                  Add
+                </button>
+              ) : (
+                <div className="w-full h-full bg-blue text-white flex items-center justify-between px-2.5 rounded-lg text-sm font-bold shadow-sm">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDecreaseQuantity();
+                    }}
+                    aria-label="Decrease quantity"
+                    className="text-white hover:text-white/80 transition-colors w-5 h-full flex items-center justify-center text-base"
+                  >
+                    −
+                  </button>
+                  <span className="select-none text-xs">{quantityInCart}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleIncreaseQuantity();
+                    }}
+                    aria-label="Increase quantity"
+                    className="text-white hover:text-white/80 transition-colors w-5 h-full flex items-center justify-center text-base"
+                  >
+                    +
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Default Grid layout: Fixed h-[410px] card with internal flex to prevent layout drift
   return (
-    <div className="group">
-      <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-[#F6F7FB] min-h-[270px] mb-4">
-        <Image src={item.imgs.previews[0]} alt="" width={250} height={250} />
+    <div className="group flex flex-col justify-between bg-white border border-gray-100 rounded-2xl p-3.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 relative h-[410px] w-full overflow-hidden">
+      {/* Top Block: Image Container (Fixed square container) */}
+      <div className="relative w-full h-[180px] bg-[#F8F9FA] rounded-xl flex items-center justify-center overflow-hidden p-2.5 flex-shrink-0 mb-3">
+        <Image
+          src={activeImage}
+          alt={item.title}
+          width={180}
+          height={180}
+          className="object-contain w-full h-full group-hover:scale-[1.03] transition-transform duration-300"
+        />
 
-        <div className="absolute left-0 bottom-0 translate-y-full w-full flex items-center justify-center gap-2.5 pb-5 ease-linear duration-200 group-hover:translate-y-0">
+        {/* Floating Actions on Top-Right */}
+        <div className="absolute top-2.5 right-2.5 flex flex-col gap-2 z-10">
           <button
-            onClick={() => {
-              openModal();
-              handleQuickViewUpdate();
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAddToWishlist();
             }}
-            id="newOne"
-            aria-label="button for quick view"
-            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-dark bg-white hover:text-blue"
+            aria-label="Toggle Watchlist"
+            className={`w-8.5 h-8.5 rounded-full flex items-center justify-center shadow-md border transition-all ${
+              isWishlisted
+                ? "bg-blue/10 border-blue/20 text-blue"
+                : "bg-white border-gray-100 text-dark-3 hover:text-blue hover:bg-gray-2"
+            }`}
           >
             <svg
-              className="fill-current"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill={isWishlisted ? "currentColor" : "none"}
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M8.00016 5.5C6.61945 5.5 5.50016 6.61929 5.50016 8C5.50016 9.38071 6.61945 10.5 8.00016 10.5C9.38087 10.5 10.5002 9.38071 10.5002 8C10.5002 6.61929 9.38087 5.5 8.00016 5.5ZM6.50016 8C6.50016 7.17157 7.17174 6.5 8.00016 6.5C8.82859 6.5 9.50016 7.17157 9.50016 8C9.50016 8.82842 8.82859 9.5 8.00016 9.5C7.17174 9.5 6.50016 8.82842 6.50016 8Z"
-                fill=""
-              />
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M8.00016 2.16666C4.99074 2.16666 2.96369 3.96946 1.78721 5.49791L1.76599 5.52546C1.49992 5.87102 1.25487 6.18928 1.08862 6.5656C0.910592 6.96858 0.833496 7.40779 0.833496 8C0.833496 8.5922 0.910592 9.03142 1.08862 9.4344C1.25487 9.81072 1.49992 10.129 1.76599 10.4745L1.78721 10.5021C2.96369 12.0305 4.99074 13.8333 8.00016 13.8333C11.0096 13.8333 13.0366 12.0305 14.2131 10.5021L14.2343 10.4745C14.5004 10.129 14.7455 9.81072 14.9117 9.4344C15.0897 9.03142 15.1668 8.5922 15.1668 8C15.1668 7.40779 15.0897 6.96858 14.9117 6.5656C14.7455 6.18927 14.5004 5.87101 14.2343 5.52545L14.2131 5.49791C13.0366 3.96946 11.0096 2.16666 8.00016 2.16666ZM2.57964 6.10786C3.66592 4.69661 5.43374 3.16666 8.00016 3.16666C10.5666 3.16666 12.3344 4.69661 13.4207 6.10786C13.7131 6.48772 13.8843 6.7147 13.997 6.9697C14.1023 7.20801 14.1668 7.49929 14.1668 8C14.1668 8.50071 14.1023 8.79199 13.997 9.0303C13.8843 9.28529 13.7131 9.51227 13.4207 9.89213C12.3344 11.3034 10.5666 12.8333 8.00016 12.8333C5.43374 12.8333 3.66592 11.3034 2.57964 9.89213C2.28725 9.51227 2.11599 9.28529 2.00334 9.0303C1.89805 8.79199 1.8335 8.50071 1.8335 8C1.8335 7.49929 1.89805 7.20801 2.00334 6.9697C2.11599 6.7147 2.28725 6.48772 2.57964 6.10786Z"
-                fill=""
-              />
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </button>
-
           <button
-            onClick={() => handleAddToCart()}
-            className="inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] bg-blue text-white ease-out duration-200 hover:bg-blue-dark"
-          >
-            Add to cart
-          </button>
-
-          <button
-            onClick={() => handleItemToWishList()}
-            aria-label="button for favorite select"
-            id="favOne"
-            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-dark bg-white hover:text-blue"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleQuickViewUpdate();
+              openModal();
+            }}
+            aria-label="Quick View"
+            className="w-8.5 h-8.5 rounded-full bg-white border border-gray-100 flex items-center justify-center shadow-md text-dark-3 hover:text-blue hover:bg-gray-2 transition-all"
           >
             <svg
-              className="fill-current"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
               fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M3.74949 2.94946C2.6435 3.45502 1.83325 4.65749 1.83325 6.0914C1.83325 7.55633 2.43273 8.68549 3.29211 9.65318C4.0004 10.4507 4.85781 11.1118 5.694 11.7564C5.89261 11.9095 6.09002 12.0617 6.28395 12.2146C6.63464 12.491 6.94747 12.7337 7.24899 12.9099C7.55068 13.0862 7.79352 13.1667 7.99992 13.1667C8.20632 13.1667 8.44916 13.0862 8.75085 12.9099C9.05237 12.7337 9.3652 12.491 9.71589 12.2146C9.90982 12.0617 10.1072 11.9095 10.3058 11.7564C11.142 11.1118 11.9994 10.4507 12.7077 9.65318C13.5671 8.68549 14.1666 7.55633 14.1666 6.0914C14.1666 4.65749 13.3563 3.45502 12.2503 2.94946C11.1759 2.45832 9.73214 2.58839 8.36016 4.01382C8.2659 4.11175 8.13584 4.16709 7.99992 4.16709C7.864 4.16709 7.73393 4.11175 7.63967 4.01382C6.26769 2.58839 4.82396 2.45832 3.74949 2.94946ZM7.99992 2.97255C6.45855 1.5935 4.73256 1.40058 3.33376 2.03998C1.85639 2.71528 0.833252 4.28336 0.833252 6.0914C0.833252 7.86842 1.57358 9.22404 2.5444 10.3172C3.32183 11.1926 4.2734 11.9253 5.1138 12.5724C5.30431 12.7191 5.48911 12.8614 5.66486 12.9999C6.00636 13.2691 6.37295 13.5562 6.74447 13.7733C7.11582 13.9903 7.53965 14.1667 7.99992 14.1667C8.46018 14.1667 8.88401 13.9903 9.25537 13.7733C9.62689 13.5562 9.99348 13.2691 10.335 12.9999C10.5107 12.8614 10.6955 12.7191 10.886 12.5724C11.7264 11.9253 12.678 11.1926 13.4554 10.3172C14.4263 9.22404 15.1666 7.86842 15.1666 6.0914C15.1666 4.28336 14.1434 2.71528 12.6661 2.03998C11.2673 1.40058 9.54129 1.5935 7.99992 2.97255Z"
-                fill=""
-              />
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
             </svg>
           </button>
         </div>
       </div>
 
-      <div className="flex items-center gap-2.5 mb-2">
-        <div className="flex items-center gap-1">
-          <Image
-            src="/images/icons/icon-star.svg"
-            alt="star icon"
-            width={14}
-            height={14}
-          />
-          <Image
-            src="/images/icons/icon-star.svg"
-            alt="star icon"
-            width={14}
-            height={14}
-          />
-          <Image
-            src="/images/icons/icon-star.svg"
-            alt="star icon"
-            width={14}
-            height={14}
-          />
-          <Image
-            src="/images/icons/icon-star.svg"
-            alt="star icon"
-            width={14}
-            height={14}
-          />
-          <Image
-            src="/images/icons/icon-star.svg"
-            alt="star icon"
-            width={14}
-            height={14}
-          />
+      {/* Mid Block: Details Info */}
+      <div className="flex-1 flex flex-col justify-start">
+        {/* Ratings row (Fixed height h-5) */}
+        <div className="flex items-center gap-1.5 h-5 mb-1 flex-shrink-0">
+          <div className="flex items-center gap-0.5">
+            <Image src="/images/icons/icon-star.svg" alt="star" width={12} height={12} />
+            <Image src="/images/icons/icon-star.svg" alt="star" width={12} height={12} />
+            <Image src="/images/icons/icon-star.svg" alt="star" width={12} height={12} />
+            <Image src="/images/icons/icon-star.svg" alt="star" width={12} height={12} />
+            <Image src="/images/icons/icon-star.svg" alt="star" width={12} height={12} />
+          </div>
+          <span className="text-[11px] text-dark-4">({item.reviews})</span>
         </div>
 
-        <p className="text-custom-sm">({item.reviews})</p>
+        {/* Title row (Fixed height h-10 to fit 2 lines clamp) */}
+        <h3 className="font-semibold text-dark text-xs sm:text-sm h-10 flex items-center mb-2 flex-shrink-0 leading-snug hover:text-blue transition-colors">
+          <Link href="/shop-details" onClick={handleProductDetails} className="line-clamp-2">
+            {item.title}
+          </Link>
+        </h3>
+
+        {/* Variant Price Chips row (Fixed height h-9 to keep spacing aligned) */}
+        <div className="h-9 flex items-center mb-3 flex-shrink-0">
+          {options.length > 1 ? (
+            <div className="flex flex-wrap gap-1.5 w-full">
+              {options.map((opt) => {
+                const optPrices = getAdjustedPrices(item.price, item.discountedPrice, opt);
+                const isSelected = selectedOption === opt;
+                return (
+                  <button
+                    key={opt}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedOption(opt);
+                    }}
+                    className={`flex flex-col items-center justify-center px-2 py-0.5 rounded-lg border text-[10px] font-semibold transition-all duration-150 ${
+                      isSelected
+                        ? "bg-blue text-white border-blue shadow-2xs"
+                        : "bg-white text-dark-2 border-gray-3 hover:border-blue hover:text-blue"
+                    }`}
+                    style={{ minWidth: "56px" }}
+                  >
+                    <span>{opt}</span>
+                    <span className={`text-[9px] ${isSelected ? "text-blue-light-4" : "text-dark-4"}`}>
+                      ₹{optPrices.discountedPrice}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            // Spacer to keep layout heights perfectly uniform across cards with/without variants
+            <div className="h-9 w-full" />
+          )}
+        </div>
       </div>
 
-      <h3
-        className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5"
-        onClick={() => handleProductDetails()}
-      >
-        <Link href="/shop-details"> {item.title} </Link>
-      </h3>
+      {/* Bottom Block: Pricing & ADD/Stepper Action Row */}
+      <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between flex-shrink-0">
+        <div className="flex flex-col justify-center">
+          <span className="text-base font-bold text-dark leading-tight">₹{discountedPrice}</span>
+          <span className="text-[11px] text-dark-4 line-through leading-tight">₹{price}</span>
+        </div>
 
-      <span className="flex items-center gap-2 font-medium text-lg">
-        <span className="text-dark">₹{item.discountedPrice}</span>
-        <span className="text-dark-4 line-through">₹{item.price}</span>
-      </span>
+        {/* Stepper / ADD Button (Fixed size) */}
+        <div className="relative w-[84px] h-[34px] flex-shrink-0 flex items-center justify-center">
+          {quantityInCart === 0 ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddToCart();
+              }}
+              className="w-full h-full border border-blue text-blue hover:bg-blue hover:text-white font-bold rounded-lg text-xs tracking-wider uppercase transition-all duration-200 bg-white shadow-2xs"
+            >
+              Add
+            </button>
+          ) : (
+            <div className="w-full h-full bg-blue text-white flex items-center justify-between px-2.5 rounded-lg text-sm font-bold shadow-sm">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDecreaseQuantity();
+                }}
+                aria-label="Decrease quantity"
+                className="text-white hover:text-white/80 transition-colors w-5 h-full flex items-center justify-center text-base"
+              >
+                −
+              </button>
+              <span className="select-none text-xs">{quantityInCart}</span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleIncreaseQuantity();
+                }}
+                aria-label="Increase quantity"
+                className="text-white hover:text-white/80 transition-colors w-5 h-full flex items-center justify-center text-base"
+              >
+                +
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
