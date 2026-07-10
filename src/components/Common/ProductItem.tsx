@@ -338,7 +338,7 @@ const ProductItem = ({ item, viewMode = "grid" }: ProductItemProps) => {
 
   // Default Grid layout: Fixed h-[410px] card with internal flex to prevent layout drift
   return (
-    <div className="group flex flex-col justify-between bg-white border border-gray-100 rounded-2xl p-3.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 relative h-[410px] w-full overflow-hidden">
+    <div className="group flex flex-col justify-between bg-white rounded-2xl p-3.5 shadow-[0_4px_24px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_40px_rgba(0,0,0,0.13)] hover:-translate-y-0.5 transition-all duration-300 relative h-[410px] w-full overflow-hidden">
       {/* Top Block: Image Container (Fixed square container) */}
       <div className="relative w-full h-[180px] bg-[#F8F9FA] rounded-xl flex items-center justify-center overflow-hidden p-2.5 flex-shrink-0 mb-3">
         <Image
