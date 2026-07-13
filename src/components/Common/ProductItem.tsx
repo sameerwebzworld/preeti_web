@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/types/product";
@@ -11,86 +11,72 @@ import { updateproductDetails } from "@/redux/features/product-details";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { useToast } from "@/app/context/ToastContext";
-
-// Options helper based on product title/type
-const getProductOptions = (title: string) => {
-  const lowercaseTitle = title.toLowerCase();
-  if (lowercaseTitle.includes("washing powder") || lowercaseTitle.includes("powder") || lowercaseTitle.includes("detergent")) {
-    return ["1kg", "2kg", "5kg"];
-  }
-  if (
-    lowercaseTitle.includes("cleaner") ||
-    lowercaseTitle.includes("liquid") ||
-    lowercaseTitle.includes("handwash") ||
-    lowercaseTitle.includes("wash") ||
-    lowercaseTitle.includes("cuff") ||
-    lowercaseTitle.includes("collar") ||
-    lowercaseTitle.includes("bleach") ||
-    lowercaseTitle.includes("topclean") ||
-    lowercaseTitle.includes("color fix") ||
-    lowercaseTitle.includes("colorfix")
-  ) {
-    return ["500ml", "1L", "5L"];
-  }
-  if (lowercaseTitle.includes("combo") || lowercaseTitle.includes("value pack") || lowercaseTitle.includes("kit")) {
-    return ["1 Pack", "2 Packs"];
-  }
-  if (lowercaseTitle.includes("soap") || lowercaseTitle.includes("pack of")) {
-    return ["1 Pack", "3 Packs"];
-  }
-  if (lowercaseTitle.includes("bag") || lowercaseTitle.includes("towel") || lowercaseTitle.includes("broom")) {
-    return ["1 Unit", "3 Units"];
-  }
-  return ["1 Unit"];
-};
-
-// Pricing scaling helper based on size choice
-const getAdjustedPrices = (basePrice: number, baseDiscountedPrice: number, option: string) => {
-  switch (option) {
-    case "1kg":
-    case "1 Pack":
-    case "1 Unit":
-      return { price: basePrice, discountedPrice: baseDiscountedPrice };
-    case "2kg":
-      return { price: Math.round(basePrice * 1.8), discountedPrice: Math.round(baseDiscountedPrice * 1.8) };
-    case "5kg":
-      return { price: Math.round(basePrice * 4.2), discountedPrice: Math.round(baseDiscountedPrice * 4.2) };
-    case "500ml":
-      return { price: Math.round(basePrice * 0.5), discountedPrice: Math.round(baseDiscountedPrice * 0.5) };
-    case "1L":
-      return { price: basePrice, discountedPrice: baseDiscountedPrice };
-    case "5L":
-      return { price: Math.round(basePrice * 4.5), discountedPrice: Math.round(baseDiscountedPrice * 4.5) };
-    case "2 Packs":
-      return { price: Math.round(basePrice * 1.8), discountedPrice: Math.round(baseDiscountedPrice * 1.8) };
-    case "3 Packs":
-    case "3 Units":
-      return { price: Math.round(basePrice * 2.5), discountedPrice: Math.round(baseDiscountedPrice * 2.5) };
-    default:
-      return { price: basePrice, discountedPrice: baseDiscountedPrice };
-  }
-};
+import { getDefaultVariantIndex, getProductVariants, getVariantCartId } from "@/lib/variants";
+import VariantModal from "./VariantModal";
 
 interface ProductItemProps {
   item: Product;
   viewMode?: "grid" | "list";
 }
 
+interface PackSelectorTriggerProps {
+  label: string;
+  count: number;
+  onClick: () => void;
+}
+
+/** Compact stand-in for the old chip row: shows the chosen pack, opens the full list. */
+const PackSelectorTrigger = ({ label, count, onClick }: PackSelectorTriggerProps) => (
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      onClick();
+    }}
+    aria-haspopup="dialog"
+    className="group/pack flex h-9 w-full items-center justify-between gap-1 rounded-lg border border-gray-3 bg-white px-2.5 text-left transition-all duration-150 hover:border-blue hover:bg-blue-light-5/40"
+  >
+    <span className="flex min-w-0 flex-col leading-tight">
+      <span className="truncate text-[11px] font-bold text-dark">{label}</span>
+      <span className="truncate text-[9px] text-dark-4">
+        {count} options
+      </span>
+    </span>
+
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="flex-shrink-0 text-dark-4 transition-colors group-hover/pack:text-blue"
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  </button>
+);
+
 const ProductItem = ({ item, viewMode = "grid" }: ProductItemProps) => {
   const { openModal } = useModalContext();
   const dispatch = useDispatch<AppDispatch>();
   const toast = useToast();
 
-  const options = getProductOptions(item.title);
-  const [selectedOption, setSelectedOption] = useState<string>(options[0]);
+  const variants = useMemo(() => getProductVariants(item), [item]);
+  const [selectedIndex, setSelectedIndex] = useState(() => getDefaultVariantIndex(variants));
+  const [isVariantModalOpen, setIsVariantModalOpen] = useState(false);
 
-  // Adjust preview image and pricing based on selection
-  const selectedOptionIndex = options.indexOf(selectedOption);
-  const activeImage = item?.imgs?.previews[selectedOptionIndex] || item?.imgs?.previews[0] || "/images/placeholder.jpg";
-  const { price, discountedPrice } = getAdjustedPrices(item.price, item.discountedPrice, selectedOption);
+  const selectedVariant = variants[selectedIndex] ?? variants[0];
+  const selectedOption = selectedVariant.label;
+  const { price, discountedPrice } = selectedVariant;
 
-  // Generate unique ID per variant to allow separate line items in the cart
-  const variantId = item.id * 100 + selectedOptionIndex;
+  // Adjust preview image based on selection
+  const activeImage =
+    item?.imgs?.previews?.[selectedIndex] || item?.imgs?.previews?.[0] || "/images/placeholder.jpg";
+
+  // Separate cart line item per pack, so 1 L and 5 L don't collapse into one row
+  const variantId = getVariantCartId(item.id, selectedVariant.index);
 
   // Retrieve cart quantity and wishlist status for the current variant
   const cartItems = useAppSelector((state) => state.cartReducer.items);
@@ -109,8 +95,9 @@ const ProductItem = ({ item, viewMode = "grid" }: ProductItemProps) => {
     title: `${item.title} (${selectedOption})`,
   };
 
+  // Quick view gets the raw product + the pack on screen, so it can show every pack.
   const handleQuickViewUpdate = () => {
-    dispatch(updateQuickView({ ...dynamicItem }));
+    dispatch(updateQuickView({ ...item, selectedVariantIndex: selectedIndex }));
   };
 
   const handleAddToCart = () => {
@@ -166,9 +153,21 @@ const ProductItem = ({ item, viewMode = "grid" }: ProductItemProps) => {
     dispatch(updateproductDetails({ ...dynamicItem }));
   };
 
+  const variantModal = isVariantModalOpen ? (
+    <VariantModal
+      item={item}
+      variants={variants}
+      selectedIndex={selectedIndex}
+      onSelect={setSelectedIndex}
+      onClose={() => setIsVariantModalOpen(false)}
+    />
+  ) : null;
+
   if (viewMode === "list") {
     return (
       <div className="group flex bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-gray-200/90 transition-all duration-300 relative w-full h-48 sm:h-52">
+        {variantModal}
+
         {/* Left Block: Image Container */}
         <div className="relative w-36 h-36 sm:w-44 sm:h-44 bg-[#F8F9FA] rounded-xl flex items-center justify-center overflow-hidden p-2.5 flex-shrink-0 mr-4 sm:mr-6">
           <Image
@@ -254,33 +253,14 @@ const ProductItem = ({ item, viewMode = "grid" }: ProductItemProps) => {
               <span className="text-2xs sm:text-xs text-dark-4">({item.reviews})</span>
             </div>
 
-            {/* Variant Price Chips */}
-            {options.length > 1 && (
-              <div className="flex flex-wrap gap-1.5 my-2">
-                {options.map((opt) => {
-                  const optPrices = getAdjustedPrices(item.price, item.discountedPrice, opt);
-                  const isSelected = selectedOption === opt;
-                  return (
-                    <button
-                      key={opt}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedOption(opt);
-                      }}
-                      className={`flex flex-col items-center justify-center px-2 py-0.5 rounded-lg border text-[10px] font-semibold transition-all duration-150 ${
-                        isSelected
-                          ? "bg-blue text-white border-blue shadow-2xs"
-                          : "bg-white text-dark-2 border-gray-3 hover:border-blue hover:text-blue"
-                      }`}
-                      style={{ minWidth: "56px" }}
-                    >
-                      <span>{opt}</span>
-                      <span className={`text-[9px] ${isSelected ? "text-blue-light-4" : "text-dark-4"}`}>
-                        ₹{optPrices.discountedPrice}
-                      </span>
-                    </button>
-                  );
-                })}
+            {/* Pack selector: opens the full variant list rather than crowding the card */}
+            {variants.length > 1 && (
+              <div className="my-2 max-w-[220px]">
+                <PackSelectorTrigger
+                  label={selectedOption}
+                  count={variants.length}
+                  onClick={() => setIsVariantModalOpen(true)}
+                />
               </div>
             )}
           </div>
@@ -339,6 +319,8 @@ const ProductItem = ({ item, viewMode = "grid" }: ProductItemProps) => {
   // Default Grid layout: Fixed h-[410px] card with internal flex to prevent layout drift
   return (
     <div className="group flex flex-col justify-between bg-white rounded-2xl p-3.5 shadow-[0_4px_24px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_40px_rgba(0,0,0,0.13)] hover:-translate-y-0.5 transition-all duration-300 relative h-[410px] w-full overflow-hidden">
+      {variantModal}
+
       {/* Top Block: Image Container (Fixed square container) */}
       <div className="relative w-full h-[180px] bg-[#F8F9FA] rounded-xl flex items-center justify-center overflow-hidden p-2.5 flex-shrink-0 mb-3">
         <Image
@@ -423,35 +405,14 @@ const ProductItem = ({ item, viewMode = "grid" }: ProductItemProps) => {
           </Link>
         </h3>
 
-        {/* Variant Price Chips row (Fixed height h-9 to keep spacing aligned) */}
+        {/* Pack selector row (Fixed height h-9 to keep spacing aligned) */}
         <div className="h-9 flex items-center mb-3 flex-shrink-0">
-          {options.length > 1 ? (
-            <div className="flex flex-wrap gap-1.5 w-full">
-              {options.map((opt) => {
-                const optPrices = getAdjustedPrices(item.price, item.discountedPrice, opt);
-                const isSelected = selectedOption === opt;
-                return (
-                  <button
-                    key={opt}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedOption(opt);
-                    }}
-                    className={`flex flex-col items-center justify-center px-2 py-0.5 rounded-lg border text-[10px] font-semibold transition-all duration-150 ${
-                      isSelected
-                        ? "bg-blue text-white border-blue shadow-2xs"
-                        : "bg-white text-dark-2 border-gray-3 hover:border-blue hover:text-blue"
-                    }`}
-                    style={{ minWidth: "56px" }}
-                  >
-                    <span>{opt}</span>
-                    <span className={`text-[9px] ${isSelected ? "text-blue-light-4" : "text-dark-4"}`}>
-                      ₹{optPrices.discountedPrice}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+          {variants.length > 1 ? (
+            <PackSelectorTrigger
+              label={selectedOption}
+              count={variants.length}
+              onClick={() => setIsVariantModalOpen(true)}
+            />
           ) : (
             // Spacer to keep layout heights perfectly uniform across cards with/without variants
             <div className="h-9 w-full" />

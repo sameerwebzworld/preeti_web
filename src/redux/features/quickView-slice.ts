@@ -1,8 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Product } from "@/types/product";
 
+/**
+ * Quick view holds the *unflattened* product plus the pack the card was showing,
+ * so the modal can render the full pack list and open on the right one.
+ */
+export type QuickViewProduct = Product & {
+  selectedVariantIndex?: number;
+};
+
 type InitialState = {
-  value: Product;
+  value: QuickViewProduct;
 };
 
 const initialState = {
@@ -15,7 +23,7 @@ const initialState = {
     id: 0,
     images: [],
     imgs: { thumbnails: [], previews: [] },
-  } as Product,
+  } as QuickViewProduct,
 } as InitialState;
 
 export const quickView = createSlice({

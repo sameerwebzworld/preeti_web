@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { useModalContext } from "@/app/context/QuickViewModalContext";
 import { AppDispatch, useAppSelector } from "@/redux/store";
@@ -9,11 +9,26 @@ import Image from "next/image";
 import { usePreviewSlider } from "@/app/context/PreviewSliderContext";
 import { resetQuickView } from "@/redux/features/quickView-slice";
 import { updateproductDetails } from "@/redux/features/product-details";
+import { useToast } from "@/app/context/ToastContext";
+import {
+  getDefaultVariantIndex,
+  getDiscountPercent,
+  getProductVariants,
+  getUnitPriceLabel,
+  getVariantCartId,
+} from "@/lib/variants";
+
+const BADGE_STYLES: Record<string, string> = {
+  "BEST VALUE": "bg-green-light-6 text-green-dark border-green-light-3",
+  "SAVER PACK": "bg-yellow-light-4 text-yellow-dark-2 border-yellow-light-2",
+  POPULAR: "bg-blue-light-5 text-blue-dark border-blue-light-3",
+};
 
 const QuickViewModal = () => {
   const { isModalOpen, closeModal } = useModalContext();
   const { openPreviewModal } = usePreviewSlider();
   const [quantity, setQuantity] = useState(1);
+  const toast = useToast();
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -21,6 +36,27 @@ const QuickViewModal = () => {
   const product = useAppSelector((state) => state.quickViewReducer.value);
 
   const [activePreview, setActivePreview] = useState(0);
+
+  const variants = useMemo(() => getProductVariants(product), [product]);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // Open on whichever pack the card was showing, and re-sync when a new product is opened.
+  useEffect(() => {
+    setSelectedIndex(
+      product.selectedVariantIndex ?? getDefaultVariantIndex(variants)
+    );
+  }, [product.id, product.selectedVariantIndex, variants]);
+
+  const selectedVariant = variants[selectedIndex] ?? variants[0];
+  const discountPercent = getDiscountPercent(selectedVariant);
+
+  const handleSelectVariant = (index: number) => {
+    setSelectedIndex(index);
+    // Some packs ship their own shot; fall back to the current one when they don't.
+    if (product.imgs?.previews?.[index]) {
+      setActivePreview(index);
+    }
+  };
 
   // preview modal
   const handlePreviewSlider = () => {
@@ -31,11 +67,22 @@ const QuickViewModal = () => {
 
   // add to cart
   const handleAddToCart = () => {
+    const { selectedVariantIndex, ...baseProduct } = product;
+
     dispatch(
       addItemToCart({
-        ...product,
+        ...baseProduct,
+        id: getVariantCartId(product.id, selectedVariant.index),
+        title: `${product.title} (${selectedVariant.label})`,
+        price: selectedVariant.price,
+        discountedPrice: selectedVariant.discountedPrice,
         quantity,
       })
+    );
+
+    toast.success(
+      "Added to Cart",
+      `${product.title} (${selectedVariant.label}) × ${quantity} added.`
     );
 
     closeModal();
@@ -149,9 +196,11 @@ const QuickViewModal = () => {
             </div>
 
             <div className="max-w-[445px] w-full">
-              <span className="inline-block text-custom-xs font-medium text-white py-1 px-3 bg-green mb-6.5">
-                SALE 20% OFF
-              </span>
+              {discountPercent > 0 && (
+                <span className="inline-block text-custom-xs font-medium text-white py-1 px-3 bg-green mb-6.5">
+                  SALE {discountPercent}% OFF
+                </span>
+              )}
 
               <h3 className="font-semibold text-xl xl:text-heading-5 text-dark mb-4">
                 {product.title}
@@ -307,18 +356,102 @@ const QuickViewModal = () => {
                 industry. Lorem Ipsum has.
               </p>
 
+              {/* Pack selector: every size for this product, priced */}
+              {variants.length > 1 && (
+                <div className="mt-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-semibold text-lg text-dark">
+                      Select Pack
+                    </h4>
+                    <span className="text-custom-xs text-dark-4">
+                      {variants.length} options
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {variants.map((variant) => {
+                      const isSelected = variant.index === selectedIndex;
+                      const variantDiscount = getDiscountPercent(variant);
+                      const unitPrice = getUnitPriceLabel(variant);
+
+                      return (
+                        <button
+                          key={variant.index}
+                          onClick={() => handleSelectVariant(variant.index)}
+                          disabled={!variant.inStock}
+                          aria-pressed={isSelected}
+                          className={`rounded-lg border p-3 text-left ease-out duration-200 ${
+                            isSelected
+                              ? "border-blue bg-blue-light-5/60 shadow-1"
+                              : "border-gray-3 bg-white hover:border-blue/50 hover:bg-gray-1"
+                          } ${
+                            !variant.inStock
+                              ? "opacity-60 cursor-not-allowed"
+                              : ""
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-1.5">
+                            <span className="font-semibold text-dark text-custom-sm">
+                              {variant.label}
+                            </span>
+
+                            {variant.badge && (
+                              <span
+                                className={`rounded border px-1 py-px text-[9px] font-bold uppercase leading-tight ${
+                                  BADGE_STYLES[variant.badge]
+                                }`}
+                              >
+                                {variant.badge}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="mt-1 flex items-baseline gap-1.5">
+                            <span className="font-semibold text-dark">
+                              ₹{variant.discountedPrice}
+                            </span>
+                            <span className="text-custom-xs text-dark-4 line-through">
+                              ₹{variant.price}
+                            </span>
+                          </div>
+
+                          <p className="mt-0.5 text-[11px] text-dark-4">
+                            {!variant.inStock
+                              ? "Sold out"
+                              : [unitPrice, variant.packNote]
+                                  .filter(Boolean)
+                                  .join(" · ")}
+                          </p>
+
+                          {variant.inStock && variantDiscount > 0 && (
+                            <p className="text-[11px] font-medium text-green">
+                              {variantDiscount}% off
+                            </p>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-wrap justify-between gap-5 mt-6 mb-7.5">
                 <div>
                   <h4 className="font-semibold text-lg text-dark mb-3.5">
                     Price
+                    {variants.length > 1 && (
+                      <span className="ml-1.5 font-normal text-custom-sm text-dark-4">
+                        ({selectedVariant.label})
+                      </span>
+                    )}
                   </h4>
 
                   <span className="flex items-center gap-2">
                     <span className="font-semibold text-dark text-xl xl:text-heading-4">
-                      ₹{product.discountedPrice}
+                      ₹{selectedVariant.discountedPrice}
                     </span>
                     <span className="font-medium text-dark-4 text-lg xl:text-2xl line-through">
-                      ₹{product.price}
+                      ₹{selectedVariant.price}
                     </span>
                   </span>
                 </div>
