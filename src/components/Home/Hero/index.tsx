@@ -11,7 +11,7 @@ const Hero = () => {
 
           {/* Main Carousel */}
           <div className="xl:w-[757px] w-full">
-            <div className="relative h-[420px] rounded-2xl bg-white overflow-hidden shadow-md">
+            <div className="relative h-auto md:h-[420px] rounded-2xl bg-white overflow-hidden shadow-md">
               <Image
                 src="/images/hero/hero-bg.png"
                 alt="Hero Background"

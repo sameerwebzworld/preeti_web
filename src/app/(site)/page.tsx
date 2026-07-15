@@ -3,7 +3,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Preeti Products - Home",
-  description: "This is Home for Preeti Products Template",
+  description: "Preeti Products - Quality cleaning essentials for your home",
   // other metadata
 };
 

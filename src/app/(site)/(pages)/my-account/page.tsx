@@ -4,7 +4,7 @@ import React from "react";
 import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "My Account | ",
-  description: "This is My Account page for NextCommerce Template",
+  description: "My Account - Preeti Products",
   // other metadata
 };
 

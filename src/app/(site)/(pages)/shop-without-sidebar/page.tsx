@@ -4,7 +4,7 @@ import ShopWithoutSidebar from "@/components/ShopWithoutSidebar";
 import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Shop Page",
-  // description: "This is Shop Page for NextCommerce Template",
+  // description: "Shop - Preeti Products",
   // other metadata
   
 };

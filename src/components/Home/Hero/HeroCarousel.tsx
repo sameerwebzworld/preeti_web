@@ -24,7 +24,7 @@ const HeroCarousal = () => {
       className="hero-carousel"
     >
       <SwiperSlide>
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-center py-8 px-6 sm:px-10 lg:px-14 min-h-[380px] sm:min-h-[460px] relative overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 items-center py-8 px-6 sm:px-10 lg:px-14 min-h-[340px] sm:min-h-[420px] md:min-h-[420px] relative overflow-hidden">
           {/* Left Text Column */}
           <div className="md:col-span-7 flex flex-col justify-center z-1">
             <div className="inline-flex items-center gap-2 bg-blue/10 text-blue px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wider w-fit mb-5">
@@ -84,7 +84,7 @@ const HeroCarousal = () => {
       </SwiperSlide>
       
       <SwiperSlide>
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-center py-8 px-6 sm:px-10 lg:px-14 min-h-[380px] sm:min-h-[460px] relative overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 items-center py-8 px-6 sm:px-10 lg:px-14 min-h-[340px] sm:min-h-[420px] md:min-h-[420px] relative overflow-hidden">
           {/* Left Text Column */}
           <div className="md:col-span-7 flex flex-col justify-center z-1">
             <div className="inline-flex items-center gap-2 bg-blue/10 text-blue px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wider w-fit mb-5">
