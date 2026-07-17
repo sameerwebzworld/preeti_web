@@ -316,13 +316,13 @@ const ProductItem = ({ item, viewMode = "grid" }: ProductItemProps) => {
     );
   }
 
-  // Default Grid layout: Fixed h-[410px] card with internal flex to prevent layout drift
+  // Default Grid layout: fixed-height card with internal flex to prevent layout drift
   return (
-    <div className="group flex flex-col justify-between bg-white rounded-2xl p-3.5 shadow-[0_4px_24px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_40px_rgba(0,0,0,0.13)] hover:-translate-y-0.5 transition-all duration-300 relative h-[410px] w-full overflow-hidden">
+    <div className="group flex flex-col justify-between bg-white rounded-2xl p-2.5 sm:p-3.5 shadow-[0_4px_24px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_40px_rgba(0,0,0,0.13)] hover:-translate-y-0.5 transition-all duration-300 relative h-[360px] sm:h-[410px] w-full overflow-hidden">
       {variantModal}
 
       {/* Top Block: Image Container (Fixed square container) */}
-      <div className="relative w-full h-[180px] bg-[#F8F9FA] rounded-xl flex items-center justify-center overflow-hidden p-2.5 flex-shrink-0 mb-3">
+      <div className="relative w-full h-[140px] sm:h-[180px] bg-[#F8F9FA] rounded-xl flex items-center justify-center overflow-hidden p-2.5 flex-shrink-0 mb-3">
         <Image
           src={activeImage}
           alt={item.title}
@@ -421,14 +421,14 @@ const ProductItem = ({ item, viewMode = "grid" }: ProductItemProps) => {
       </div>
 
       {/* Bottom Block: Pricing & ADD/Stepper Action Row */}
-      <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between flex-shrink-0">
-        <div className="flex flex-col justify-center">
+      <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between gap-2 flex-shrink-0">
+        <div className="flex flex-shrink-0 flex-col justify-center">
           <span className="text-base font-bold text-dark leading-tight">₹{discountedPrice}</span>
           <span className="text-[11px] text-dark-4 line-through leading-tight">₹{price}</span>
         </div>
 
-        {/* Stepper / ADD Button (Fixed size) */}
-        <div className="relative w-[84px] h-[34px] flex-shrink-0 flex items-center justify-center">
+        {/* Holds its full 84px wherever there is room; only sub-360px phones shrink it, never past 56px */}
+        <div className="relative w-[84px] min-w-[56px] h-[34px] flex items-center justify-center">
           {quantityInCart === 0 ? (
             <button
               onClick={(e) => {

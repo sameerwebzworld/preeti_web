@@ -24,10 +24,10 @@ const featureData = [
   },
 ];
 
-const HeroFeature = () => {
+const FooterFeature = () => {
   return (
-    <div className="max-w-[1060px] w-full mx-auto px-4 sm:px-8 xl:px-0">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8 mt-10">
+    <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8 py-10 xl:py-12.5 border-b border-gray-4">
         {featureData.map((item, key) => (
           <div className="flex items-center gap-4" key={key}>
             <Image src={item.img} alt="icons" width={40} height={41} />
@@ -43,4 +43,4 @@ const HeroFeature = () => {
   );
 };
 
-export default HeroFeature;
+export default FooterFeature;

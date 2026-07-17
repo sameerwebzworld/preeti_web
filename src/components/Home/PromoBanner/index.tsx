@@ -30,10 +30,11 @@ const PromoBanner = () => {
             </a>
           </div>
 
+          {/* Sits below the copy until lg, where the banner is finally wide enough to tuck it into the corner */}
           <Image
             src="https://cdn.shopify.com/s/files/1/0651/2023/9673/files/6.jpg?v=1734007975"
             alt="Preeti combo box"
-            className="absolute bottom-0 right-4 lg:right-26 -z-1 object-contain"
+            className="block mx-auto mt-8 w-[200px] h-auto object-contain lg:absolute lg:bottom-0 lg:right-26 lg:mt-0 lg:w-[274px] lg:-z-1"
             width={274}
             height={350}
           />
@@ -45,12 +46,12 @@ const PromoBanner = () => {
             <Image
               src="https://cdn.shopify.com/s/files/1/0651/2023/9673/files/Rose_hanwash_5_ltr.jpg?v=1733221461"
               alt="Rose handwash"
-              className="absolute top-1/2 -translate-y-1/2 left-3 sm:left-10 -z-1 object-contain"
+              className="block mx-auto mb-5 w-[150px] h-auto object-contain sm:absolute sm:top-1/2 sm:left-10 sm:mx-0 sm:mb-0 sm:w-[241px] sm:-translate-y-1/2 sm:-z-1"
               width={241}
               height={241}
             />
 
-            <div className="text-right">
+            <div className="text-center sm:text-right">
               <span className="block text-lg text-dark mb-1.5">
                 Rose & Lemon Handwash
               </span>
@@ -77,12 +78,12 @@ const PromoBanner = () => {
             <Image
               src="https://cdn.shopify.com/s/files/1/0651/2023/9673/files/Naturalbathsoap.jpg?v=1733222500"
               alt="Preeti beauty soap"
-              className="absolute top-1/2 -translate-y-1/2 right-3 sm:right-8.5 -z-1 object-contain"
+              className="block mx-auto mb-5 w-[150px] h-auto object-contain sm:absolute sm:top-1/2 sm:right-8.5 sm:mx-0 sm:mb-0 sm:w-[200px] sm:-translate-y-1/2 sm:-z-1"
               width={200}
               height={200}
             />
 
-            <div>
+            <div className="text-center sm:text-left">
               <span className="block text-lg text-dark mb-1.5">
                 Preeti Beauty Soaps
               </span>
@@ -91,7 +92,7 @@ const PromoBanner = () => {
                 Up to <span className="text-orange">20%</span> off
               </h2>
 
-              <p className="max-w-[285px] text-custom-sm">
+              <p className="max-w-[285px] mx-auto sm:mx-0 text-custom-sm">
                 Cocoa butter, vitamin E, aloe vera & tulsi — gentle care that
                 keeps skin soft and nourished.
               </p>

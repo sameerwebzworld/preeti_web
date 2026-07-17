@@ -243,6 +243,17 @@ const config: Config = {
         list: "1px 0px 0px 0px #E5E7EB",
         input: "inset 0 0 0 2px #3C50E0",
       },
+      keyframes: {
+        // -25% shifts the track by exactly one copy, so SaleMarquee must
+        // render its message list 4 times for the loop to be seamless.
+        marquee: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-25%)" },
+        },
+      },
+      animation: {
+        marquee: "marquee 30s linear infinite",
+      },
     },
   },
   plugins: [],

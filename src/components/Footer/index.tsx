@@ -1,14 +1,19 @@
 import React from "react";
 import Image from "next/image";
+import FooterFeature from "./FooterFeature";
 
 const Footer = () => {
   const year = new Date().getFullYear();
 
   return (
     <footer className="overflow-hidden bg-[#E5EAF4] mt-5">
+      {/* <!-- footer feature start --> */}
+      <FooterFeature />
+      {/* <!-- footer feature end --> */}
+
       <div className="max-w-[1170px] mx-auto px-4 sm:px-8 xl:px-0">
         {/* <!-- footer menu start --> */}
-        <div className="flex flex-wrap xl:flex-nowrap gap-10 xl:gap-19 xl:justify-between pt-17.5 xl:pt-22.5 pb-10 xl:pb-15">
+        <div className="flex flex-wrap xl:flex-nowrap gap-10 xl:gap-19 xl:justify-between pt-10 xl:pt-15 pb-10 xl:pb-15">
           <div className="max-w-[330px] w-full">
             <h2 className="mb-7.5 text-custom-1 font-medium text-dark">
               Help & Support

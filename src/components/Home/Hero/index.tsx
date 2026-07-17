@@ -1,11 +1,10 @@
 import React from "react";
 import HeroCarousel from "./HeroCarousel";
-import HeroFeature from "./HeroFeature";
 import Image from "next/image";
 
 const Hero = () => {
   return (
-    <section className="overflow-hidden pt-40 md:pt-30 pb-10 lg:pb-12.5 xl:pb-15 bg-[#E5EAF4] ">
+    <section className="overflow-hidden pt-50 md:pt-40 pb-10 lg:pb-12.5 xl:pb-15 bg-[#E5EAF4] ">
       <div className="max-w-[1170px] mx-auto px-4 sm:px-8 xl:px-0">
         <div className="flex flex-wrap xl:flex-nowrap gap-5">
 
@@ -128,8 +127,6 @@ const Hero = () => {
 
         </div>
       </div>
-
-      <HeroFeature />
     </section>
   );
 };

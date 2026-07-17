@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { menuData } from "./menuData";
 import Dropdown from "./Dropdown";
+import SaleMarquee from "./SaleMarquee";
 import { useAppSelector } from "@/redux/store";
 import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
 import Image from "next/image";
@@ -75,6 +76,9 @@ const Header = () => {
         stickyMenu && "shadow"
       }`}
     >
+      {/* <!-- sale marquee --> */}
+      <SaleMarquee />
+
       <div className="max-w-[1170px] mx-auto px-4 sm:px-7.5 xl:px-0">
         {/* <!-- header main row --> */}
         <div
